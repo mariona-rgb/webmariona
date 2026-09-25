@@ -13,7 +13,7 @@
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap"
       rel="stylesheet"
@@ -707,7 +707,20 @@
 
             <div class="col-lg-7">
               <div class="custom-card p-4 p-md-5">
-                <form id="contactForm" novalidate>
+                <form
+                  id="contactForm"
+                  name="contacto"
+                  method="POST"
+                  data-netlify="true"
+                  netlify-honeypot="bot-field"
+                  novalidate
+                >
+                  <!-- Campos ocultos requeridos por Netlify Forms -->
+                  <input type="hidden" name="form-name" value="contacto" />
+                  <p class="d-none">
+                    <label>No rellenar: <input name="bot-field" /></label>
+                  </p>
+
                   <div class="row g-3">
                     <div class="col-md-6">
                       <label for="fullName" class="form-label"

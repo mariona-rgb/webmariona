@@ -48,15 +48,12 @@ function initSmoothScrollAndMenuClose() {
 }
 
 /**
- * 3. Gestión y validación del formulario
+ * 3. Gestión y validación del formulario con Netlify Forms nativo
  */
 function initContactForm() {
   const form = document.getElementById('contactForm');
   const feedbackAlert = document.getElementById('formFeedbackAlert');
   const submitBtn = document.getElementById('submitBtn');
-
-  // OPCIONAL: Si configuras Formspree para recibir emails en segundo plano, pega tu enlace aquí:
-  const FORMSPREE_ENDPOINT = '';
 
   if (!form) return;
 
@@ -143,58 +140,35 @@ function initContactForm() {
 
     submitBtn.disabled = true;
     submitBtn.innerHTML =
-      '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Enviando...';
+      '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Enviando solicitud...';
 
-    if (FORMSPREE_ENDPOINT) {
-      try {
-        const formData = new FormData(form);
-        const response = await fetch(FORMSPREE_ENDPOINT, {
-          method: 'POST',
-          body: formData,
-          headers: { Accept: 'application/json' },
-        });
+    try {
+      // Envío AJAX nativo hacia Netlify Forms
+      const formData = new FormData(form);
+      const urlEncodedData = new URLSearchParams(formData).toString();
 
-        if (response.ok) {
-          feedbackAlert.className = 'alert alert-success mt-3 d-block';
-          feedbackAlert.innerHTML =
-            '<i class="bi bi-check-circle-fill me-2"></i><strong>¡Solicitud enviada con éxito!</strong> Nos pondremos en contacto contigo en breve.';
-          form.reset();
-          inputs.forEach((input) => input.classList.remove('is-valid'));
-        } else {
-          throw new Error('Error al enviar');
-        }
-      } catch (err) {
-        feedbackAlert.className = 'alert alert-danger mt-3 d-block';
-        feedbackAlert.innerHTML =
-          '<i class="bi bi-x-circle-fill me-2"></i>Hubo un error al enviar. Por favor, contáctanos por teléfono o WhatsApp.';
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="bi bi-send me-2"></i>Enviar Solicitud';
-      }
-    } else {
-      const whatsappNumber = '34672770643';
-      const messageText =
-        `*Nueva Consulta Web - Mariona Cervero*\n` +
-        `------------------------------------\n` +
-        `*Nombre:* ${fullNameInput.value.trim()}\n` +
-        `*Teléfono:* ${cleanPhone}\n` +
-        `*Email:* ${emailInput.value.trim()}\n` +
-        `*Servicio:* ${serviceSelect.value}\n` +
-        `*Mensaje:* ${messageInput.value.trim()}\n` +
-        `------------------------------------`;
+      const response = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: urlEncodedData,
+      });
 
-      const encodedUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(messageText)}`;
-
-      setTimeout(() => {
+      if (response.ok) {
         feedbackAlert.className = 'alert alert-success mt-3 d-block';
         feedbackAlert.innerHTML =
-          '<i class="bi bi-check-circle-fill me-2"></i><strong>¡Datos comprobados!</strong> Se abre WhatsApp para enviar tu mensaje.';
-        window.open(encodedUrl, '_blank');
+          '<i class="bi bi-check-circle-fill me-2"></i><strong>¡Solicitud enviada con éxito!</strong> He recibido tus datos y te responderé en breve.';
         form.reset();
         inputs.forEach((input) => input.classList.remove('is-valid'));
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="bi bi-send me-2"></i>Enviar Solicitud';
-      }, 600);
+      } else {
+        throw new Error('Error al registrar la solicitud en Netlify');
+      }
+    } catch (err) {
+      feedbackAlert.className = 'alert alert-danger mt-3 d-block';
+      feedbackAlert.innerHTML =
+        '<i class="bi bi-x-circle-fill me-2"></i>Hubo un problema al procesar el envío. Puedes escribir directamente a través del botón flotante de WhatsApp.';
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="bi bi-send me-2"></i>Enviar Solicitud';
     }
   });
 }
